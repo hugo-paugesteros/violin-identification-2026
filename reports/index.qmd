@@ -1,0 +1,9 @@
+# Introduction
+
+Musical instrument classification is a fundamental task in Musical Information Retrieval (MIR), focusing on identifying the types of instruments present in a recording, such as violins, cellos, or pianos. This topic has been extensively studied in the literature, and for monophonic recordings (containing only one instrument), state-of-the-art models often achieve nearly 100% accuracy. 
+However, few articles have addressed the issue of identifying individual instruments of the same type, let alone from the violin familiy specifically (for example, identifying violin A versus violin B).
+Only a handful of studies (@lukasik2010, @wang2020, @yokoyama2022a) have tackled this challenge, showing that cepstral coefficients provide sufficient discriminative information about individual violin timbre to enable effective classification. @lukasik2010 found that long-term features could lead to a more stable classification. Nevertheless, these studies relied on limited datasets, where not all violins were played by multiple violinists. This raises an important question: do these algorithms recognize the instruments themselves, or simply the unique playing styles of the performers?
+
+This chapter aims to address this challenge by reviewing and comparing various approaches to identifying individual violins, while comparing it to human performance. In order to achieve this, three datasets were collected, comprising recordings of multiple violinists playing a set of violins. This data was then used :
+1. In a listening test to assess the performance of humans in violin recognition
+2. In a machine learning pipeline to see the machine performance and insights -- for example, identifying which musical excerpts are most effective for capturing the timbral differences between violins.

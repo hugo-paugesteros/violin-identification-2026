@@ -3,15 +3,37 @@ title: Is identification possible for machines ?
 ---
 
 ## Methods
+
 ### Features
-- Long-Term Average Spectra (LTAS)
-- Long-Term Cepstral Coefficients (LTCC)
-- Long-Term Mel-Frequency Cepstral Coefficients (LTMFCC)
+We limit the study to long-term audio descriptors, as we can observe that when violinists try new instruments they often give a global description of the sound they produce. The following features have been compared for the classification task :
+
+#### Long-Term Average Spectra (LTAS)
+The Long Time Average Spectra (LTAS) of a recording is obtained by dividing the input signal into overlapping segments, then calculating the windowed DFT of each segment and finally averaging the power of those DFTs.
+
+LTAS has been used in @buen2005 in order to compare the tonal quality of violins. More specifically, the sound of old Italians violins (Stradivari/Guarneri) and modern violins has been compared. The author concludes that differences between these two groups can be shown using LTAS
+
+#### Long-Term Cepstral Coefficients (LTCC)
+LTCC have been introduced in @lukasik2010 for Indivudial Instrument Identification. Their calculation is similar to that of MFCCs, except that a Mel-filterbank is not applied and that the final step is given by an Inverse Discrete Fourier Transform.
+
+#### Long-Term Mel-Frequency Cepstral Coefficients (LTMFCC)
+MFCCs are obtained by mapping the frequencies of a spectrum onto a nonlinear mel-scale (a perceptual scale of pitches judged by listeners to be equal in distance from one another), taking the log, and then compute the DCT of the result. Here, instead of calculating the MFCCs on overlapping segments, we use a LTAS as our spectra as we want features with a long-term meaning
+
+MFCC are a set of features that has been extensively used for Automatic Speaker Recognition and for Instruments Classification (@eronen2000, @deng2008).
 
 ### Classifiers
-- K-Nearest Neighbors (KNN)
-- Support Vector Machines (SVM)
-- Multi-Layer Perceptron (MLP)
+We compare the results of three popular classification algorithms : K-Nearest Neighbours, Support Vector Machines and Multilayer Perceptron. These three classifiers use different learning strategies and thus will give different results on our data.
+
+#### K-Nearest Neighbors (KNN)
+K-Nearest Neighbours is a method that predicts the label of a new point based on the most frequent label among its K closest neighbors in the feature space. Since the prediction is made directly from the training data, this method is non-parametric (or non-generalizing), which is an advantage when the decision boundary is irregular.
+
+#### Support Vector Machines (SVM)
+Support Vector Machines is a supervised learning method using for classification. It works by finding an optimal hyperplane that maximizes the distance between each class in the training data. This algorithm is computationally expensive but generally has good generalisation properties.
+
+#### Multilayer Perceptron (MLP)
+A Multilayer Perceptron is a type of neural network that maps inputs to outputs through multiple layers of interconnected neurons, using learned weights and biases to perform complex transformations. This method has demonstrated effectiveness in various domains, as the non-linear activation functions can model complex relationships in data while hidden layers can learn hierarchical representations from input data. However, MLPs are prone to over-fitting, especially on small datasets.
+
+### Training
+For each dataset and each feature, $n=10$ StratifiedShuffleSplit are drawn from the entire dataset. Each classifier is then trained on the train data and tested on the test data. This can be seen as a Monte-Carlo Cross-Validation. The goal is to quantify the variability in model performance due to the choice of training data.
 
 ## Results
 
