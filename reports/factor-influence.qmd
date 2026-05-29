@@ -40,7 +40,10 @@ from sklearn.preprocessing import LabelEncoder
 ```
 
 ## Methods
-Train a baseline classifier on different excerpts/players. Test it on same excerpt/player (but different takes) and different excerpts/players (generalization score).
+The goal is to quantify the influence of factors (such as the excerpts or the players) on classification results. This could allow to answer: Is there a better excerpt to learn from if we want to distinguish violins ? Is there a better player ?
+
+To do that, we train a "baseline" classifier (LTMFCC + SVM, which showed good classification results) on different excerpts. Then, we test it on different takes of the same excerpt (with this excerpt as training data, is it easy to identify the violin given it plays the same excerpt ?) and different excerpts (with this excerpt as training data, is it easy to identify the violin given it plays an unknown excerpt). We also do that for players.
+
 ```{python}
 #| echo: false
 #| message: false
@@ -60,83 +63,7 @@ markdown_block = f"```python\n{source_code}\n```"
 display(Markdown(markdown_block))
 ```
 
-
 ## Results 
-```{python}
-def plot_excerpt_breakdown(results_df, metric="kappa", save_path=None):
-    """
-    Plots the generalization gap excerpt-by-excerpt for a single classifier,
-    sorted from best to worst generalization performance.
-    """
-    df_plot = results_df.copy()
-
-    # Sort
-    gen_data = df_plot[df_plot["test_type"] == "Different Excerpt"]
-    excerpt_scores = gen_data.groupby("excerpt_trained_on")[metric].mean()
-    df_plot["gen_score"] = df_plot["excerpt_trained_on"].map(excerpt_scores)
-    df_plot.sort_values(
-        by=["dataset", "gen_score"], ascending=[True, True], inplace=True
-    )
-
-    sns.set_theme(style="whitegrid", context="paper", font_scale=1.1)
-
-    g = sns.catplot(
-        data=df_plot,
-        x="excerpt_trained_on",
-        y=metric,
-        hue="test_type",
-        # col="feature",
-        row="dataset",
-        kind="box",
-        sharex=False,
-        height=4.5,
-        aspect=1.4,
-        palette=["#4C72B0", "#C44E52"],
-        boxprops={"alpha": 0.85},
-        linewidth=1.2,
-    )
-
-    g.set_axis_labels(
-        "Training Excerpt (Sorted by Best Generalization)",
-        metric.replace("_", " ").title(),
-    )
-    g.set_titles(
-        row_template="Dataset: {row_name}",
-        col_template="Feature: {col_name}",
-        size=12,
-        weight="bold",
-    )
-
-    for ax in g.axes.flat:
-        for label in ax.get_xticklabels():
-            label.set_rotation(45)
-            label.set_ha("right")
-
-        ax.set_ylim(bottom=min(-0.1, ax.get_ylim()[0]), top=1.05)
-        ax.axhline(1.0, color="black", linewidth=0.5, linestyle="--")
-
-    sns.move_legend(
-        g,
-        "lower center",
-        bbox_to_anchor=(0.5, -0.08),
-        ncol=2,
-        title="Evaluation Context",
-        frameon=True,
-    )
-
-    g.figure.suptitle(
-        "Excerpt-by-Excerpt Generalization Gap", y=1.02, fontsize=16, weight="bold"
-    )
-
-    plt.tight_layout()
-
-    if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Plot saved to {save_path}")
-
-    plt.show()
-```
-
 ```{python}
 def plot_generalization_gap(results_df, split_column, metric="accuracy"):
     df_plot = results_df.copy()

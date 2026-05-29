@@ -3,6 +3,7 @@ title: Is identification possible for machines ?
 ---
 
 ## Methods
+The goal is to check wether a machine learning pipeline can identify individual violins.
 
 ### Features
 We limit the study to long-term audio descriptors, as we can observe that when violinists try new instruments they often give a global description of the sound they produce. The following features have been compared for the classification task :
