@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Hugo Pauget Ballesteros">
 
-<title>Chapter 1: The Acoustic Identification of Violins</title>
+<title>2&nbsp; Datasets – Chapter 1: The Acoustic Identification of Violins</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -24,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -34,7 +68,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./materials.html" rel="next">
+<link href="./is-identification-possible-humans.html" rel="next">
+<link href="./index.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -73,10 +108,39 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
-<body class="nav-sidebar floating fullcontent quarto-light">
+<body class="nav-sidebar floating quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -85,7 +149,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./materials.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Datasets</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -112,13 +176,13 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./materials.html" class="sidebar-item-text sidebar-link">
+  <a href="./materials.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Datasets</span></span></a>
   </div>
 </li>
@@ -151,25 +215,29 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#bilbao" id="toc-bilbao" class="nav-link active" data-scroll-target="#bilbao"><span class="header-section-number">2.1</span> Bilbao</a></li>
+  <li><a href="#cnsm" id="toc-cnsm" class="nav-link" data-scroll-target="#cnsm"><span class="header-section-number">2.2</span> CNSM</a></li>
+  <li><a href="#villefavard-2026" id="toc-villefavard-2026" class="nav-link" data-scroll-target="#villefavard-2026"><span class="header-section-number">2.3</span> Villefavard 2026</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Chapter 1: The Acoustic Identification of Violins</h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Datasets</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Hugo Pauget Ballesteros </p>
-          </div>
-  </div>
     
   
     
@@ -180,8 +248,53 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<p>Three datasets were collected for this study, each consisting of recordings where a group of violinists played a set of violins. The specific cohorts of violins and participating musicians were unique to each experiment.</p>
+<section id="bilbao" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="bilbao"><span class="header-section-number">2.1</span> Bilbao</h2>
+<p>During the Bilbao Project, thirteen violins were built in order to relate their material and geometrical characteristics with their tonal quality <span class="citation" data-cites="fritz2019">[@fritz2019]</span>. These violins were played in 2019 by twenty-three professional violinists, each of them having recorded a 3-octave G chromatic scale on each violin and a short musical excerpt on a violin of their choice. The resulting dataset comprises <span class="math inline">\(13 \times 23\)</span> scales plus <span class="math inline">\(1 \times 23\)</span> musical excerpts. The recordings were made under the same conditions in a large rehearsal room at the Bilbao conservatory, keeping the distance between the player and the microphone (Zoom H4n Pro) constant and using a sample rate of 48kHz.</p>
+</section>
+<section id="cnsm" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="cnsm"><span class="header-section-number">2.2</span> CNSM</h2>
+<p>Another dataset was created at the Paris Conservatoire (CNSMDP), involving thirteen semi-professional violinists and three violins. The participants were invited to freely explore each instrument before recording a chromatic scale and selected excerpts from the classical violin repertoire, including pieces by Bach (Partita No.&nbsp;2, Allemande), Mozart (Concerto No.&nbsp;3, 1st Mov.), Tchaikovsky (Concerto, 1st Mov.), Sibelius (Concerto), and Glazunov (Concerto). The recordings were made under the same conditions in a large recording studio at the CNSM, keeping the distance between the player and the microphone (a pair of DPA 4006) constant and using a sample rate of 48kHz.</p>
+</section>
+<section id="villefavard-2026" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="villefavard-2026"><span class="header-section-number">2.3</span> Villefavard 2026</h2>
+<p>A third dataset was created during the 2026 ALADFI (<em>Association des Luthiers et Archetiers pour le Développement de la Facture Instrumentale du quatuor</em>) workshop. The goal of this meeting was to replicate the Guarneri del Gesù <em>Maury-Ebersolt ex Menuhin</em> violin. Several violin makers brought their copies of this violin to the workshop, and musical recordings were made on seven of them by ten musicians. Unlike previous sessions, the playing proficiency varied among participants, leading to tailored recording protocols. Eight capable musicians (three professionals and five amateurs) recorded the standard CNSM repertoire, while the remaining two participants were permitted to play freely. The recordings were wmade under the same conditions in a large room at the Villefavard farm, keeping the distance between the player and the microphone constant and using a sample rate of 48kHz.</p>
+<div id="efed5339" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_row_duration(row):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> pd.isnull(row[<span class="st">"start"</span>]):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        row[<span class="st">"duration"</span>] <span class="op">=</span> row[<span class="st">"end"</span>] <span class="op">-</span> row[<span class="st">"start"</span>]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        row[<span class="st">"duration"</span>] <span class="op">=</span> librosa.get_duration(path<span class="op">=</span>row[<span class="st">"file"</span>])</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> row</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>master_fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">18</span>, <span class="dv">6</span>), layout<span class="op">=</span><span class="st">"constrained"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>subfigs <span class="op">=</span> master_fig.subfigures(<span class="dv">1</span>, <span class="dv">3</span>, wspace<span class="op">=</span><span class="fl">0.07</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>datasets <span class="op">=</span> recordings.dataset.unique()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> dataset, subfig <span class="kw">in</span> <span class="bu">zip</span>(datasets, subfigs):</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> recordings.query(<span class="st">"dataset == @dataset"</span>).copy()</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> subset.<span class="bu">apply</span>(get_row_duration, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    plot_dataset(subset, fig<span class="op">=</span>subfig)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    subfig.suptitle(dataset)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/hugo/Thèse/violin-identification/venv/lib/python3.14/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="materials_files/figure-html/cell-3-output-2.png" width="1739" height="587" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -586,10 +699,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link" aria-label="index.html">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./materials.html" class="pagination-link" aria-label="Datasets">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Datasets</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./is-identification-possible-humans.html" class="pagination-link" aria-label="Is identification possible for humans ?">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Is identification possible for humans ?</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
