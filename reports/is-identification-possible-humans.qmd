@@ -1,0 +1,170 @@
+---
+title: Is identification possible for humans ?
+---
+
+```{python}
+#| code-fold: true
+#| echo: false
+%load_ext autoreload
+%autoreload 2
+
+from violin_identification.loader import load_listening_tests
+from violin_identification.plots import plot_listening_test
+```
+
+## Method
+A listening test was conducted in order to quantify to what extent humans are capable of identifying violins. As it is extremely difficult for humans to remember recordings to make comparisons, we decided to evaluate them in an easier ABX task. Listeners were first presented two recordings A and B containing two violins. Then a third recording that could contain either violin A or violin B was presented. The goal was to identify wether the violin played in X was the same that was played in A or in B.
+
+As we also wanted to test to what extend this task was feasible, we split each test in four categories :
+
+1. X is the exact same recording as A or B (Same Player, Same Excerpt, Same Take)
+1. A, B and X are the same excerpt played by the same player (Same Player, Same Excerpt, Different Takes)
+1. A, B and X are different excerpts played by the same player (Same Player, Different Excerpts)
+1. A, B and X are the same excerpts played by different players (Same Player, Different Excerpts)
+
+```{python}
+#| code-fold: true
+import yaml
+import re
+import pandas as pd
+from IPython.display import display
+
+# 1. Your YAML Configuration (You can also load this from a file using yaml.safe_load(open('config.yml')))
+yaml_config = """
+test:
+  rounds:
+    # VA vs VB Block
+    - a: "P1-VA-E1.0.wav"
+      b: "P1-VB-E1.0.wav"
+      x: ["P2-VA-E1.1.wav", "P2-VB-E1.0.wav"]
+    - a: "P1-VA-E2.0.wav"
+      b: "P1-VB-E2.0.wav"
+      x: ["P2-VA-E2.1.wav", "P2-VB-E2.0.wav"]
+    - a: "P1-VA-E1.0.wav"
+      b: "P1-VB-E1.0.wav"
+      x: ["P3-VA-E1.0.wav", "P3-VB-E1.0.wav"]
+    - a: "P1-VA-E1.0.wav"
+      b: "P1-VB-E1.0.wav"
+      x: ["P1-VA-E1.0.wav", "P1-VB-E1.0.wav"]
+    - a: "P1-VA-E1.0.wav"
+      b: "P1-VB-E1.0.wav"
+      x: ["P1-VA-E1'.0.wav", "P1-VB-E1'.0.wav"]
+    - a: "P2-VA-E1.1.wav"
+      b: "P2-VB-E1.0.wav"
+      x: ["P2-VA-E1'.0.wav", "P2-VB-E1'.0.wav"]
+    - a: "P1-VA-E1.3.0.wav"
+      b: "P1-VB-E1.3.0.wav"
+      x: ["P1-VA-E2.0.wav", "P1-VB-E2.0.wav"]
+    - a: "P1-VA-E1.0.wav"
+      b: "P1-VB-E1.0.wav"
+      x: ["P1-VA-E3.0.wav", "P1-VB-E3.0.wav"]
+
+    # VA vs VC Pair Block
+    - a: "P1-VA-E1.0.wav"
+      b: "P1-VC-E1.1.wav"
+      x: ["P2-VA-E1.1.wav", "P2-VC-E1.0.wav"]
+    - a: "P1-VA-E2.0.wav"
+      b: "P1-VC-E2.0.wav"
+      x: ["P2-VA-E2.1.wav", "P2-VC-E2.0.wav"]
+    - a: "P1-VA-E1.0.wav"
+      b: "P1-VC-E1.1.wav"
+      x: ["P3-VA-E1.0.wav", "P3-VC-E1.0.wav"]
+    - a: "P1-VA-E1.0.wav"
+      b: "P1-VC-E1.1.wav"
+      x: ["P1-VA-E1.0.wav", "P1-VC-E1.1.wav"]
+    - a: "P1-VA-E1.0.wav"
+      b: "P1-VC-E1.1.wav"
+      x: ["P1-VA-E1'.0.wav", "P1-VC-E1'.0.wav"]
+    - a: "P2-VA-E1.1.wav"
+      b: "P2-VC-E1.0.wav"
+      x: ["P2-VA-E1'.0.wav", "P2-VC-E1'.0.wav"]
+    - a: "P1-VA-E1.3.0.wav"
+      b: "P1-VC-E1.3.1.wav"
+      x: ["P1-VA-E2.0.wav", "P1-VC-E2.0.wav"]
+    - a: "P1-VA-E1.0.wav"
+      b: "P1-VC-E1.1.wav"
+      x: ["P1-VA-E3.0.wav", "P1-VC-E3.0.wav"]
+"""
+
+# 2. Map the excerpt codes to human-readable strings
+excerpt_map = {
+    "E1": "Glazounov 1 - session 1",
+    "E1'": "Glazounov 1 - session 2",
+    "E1.3": "Glazounov 1 - session 3",
+    "E2": "Sibélius - session 3",
+    "E3": "Tchaikovsky",
+}
+
+category_map = {
+    0: "Same Excerpt\nDifferent Player",
+    1: "Same Excerpt\nDifferent Player",
+    2: "Same Excerpt\nDifferent Player",
+    3: "Same Excerpt\nSame Player\nSame Take",
+    4: "Same Excerpt\nSame Player",
+    5: "Same Excerpt\nSame Player",
+    6: "Different Excerpt\nSame Player",
+    7: "Different Excerpt\nSame Player",
+    8: "Same Excerpt\nDifferent Player",
+    9: "Same Excerpt\nDifferent Player",
+    10: "Same Excerpt\nDifferent Player",
+    11: "Same Excerpt\nSame Player\nSame Take",
+    12: "Same Excerpt\nSame Player",
+    13: "Same Excerpt\nSame Player",
+    14: "Different Excerpt\nSame Player",
+    15: "Different Excerpt\nSame Player",
+}
+
+
+def parse_audio(filename):
+    """
+    Extracts Player, Violin, and Excerpt ignoring the take number.
+    Regex logic: Matches P#, V[letter], and everything up to the final .[take].wav
+    """
+    match = re.search(r"(P\d+)-V([A-Z])-(.*?)\.\d+\.wav", str(filename))
+    if match:
+        player = match.group(1)
+        violin = match.group(2)
+        excerpt_code = match.group(3)
+
+        # Translate the excerpt code
+        excerpt_text = excerpt_map.get(excerpt_code, excerpt_code)
+
+        return f"{player} | Violin {violin} | {excerpt_text}"
+    return filename
+
+
+# 3. Parse data into a list of dictionaries
+data = yaml.safe_load(yaml_config)
+rounds_data = []
+
+for i, rnd in enumerate(data["test"]["rounds"]):
+    info_A = parse_audio(rnd["a"])
+    info_B = parse_audio(rnd["b"])
+
+    # Since X has two options in your YAML, we parse both and join them
+    x_options = [parse_audio(x) for x in rnd["x"]]
+    info_X = "\nOR\n".join(x_options)
+
+    rounds_data.append(
+        {
+            "Round": i + 1,
+            "Recording A": info_A,
+            "Recording B": info_B,
+            "Target X (Possible Options)": info_X,
+            "Category": category_map[i],
+        }
+    )
+
+# 4. Create and display the formatted DataFrame
+df = pd.DataFrame(rounds_data)
+df.set_index("Round", inplace=True)
+
+display(df)
+```
+
+## Results
+
+```{python}
+listening_tests = load_listening_tests("/home/hugo/Thèse/listening-test-2/results")
+plot_listening_test(listening_tests)
+```

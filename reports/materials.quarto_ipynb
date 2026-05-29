@@ -1,0 +1,92 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: Datasets\n",
+        "---"
+      ],
+      "id": "0807acf9"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#| code-fold: true\n",
+        "#| echo: false\n",
+        "%load_ext autoreload\n",
+        "%autoreload 2\n",
+        "\n",
+        "import matplotlib.pyplot as plt\n",
+        "import pandas as pd\n",
+        "import librosa\n",
+        "import numpy as np\n",
+        "\n",
+        "from violin_identification.loader import load_recordings\n",
+        "from violin_identification.plots import plot_dataset\n",
+        "\n",
+        "recordings = load_recordings()"
+      ],
+      "id": "f55e56c6",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Three datasets were collected for this study, each consisting of recordings where a group of violinists played a set of violins. The specific cohorts of violins and participating musicians were unique to each experiment.\n",
+        "\n",
+        "## Bilbao\n",
+        "During the Bilbao Project, thirteen violins were built in order to relate their material and geometrical characteristics with their tonal quality [@fritz2019]. These violins were played in 2019 by twenty-three professional violinists, each of them having recorded a 3-octave G chromatic scale on each violin and a short musical excerpt on a violin of their choice. The resulting dataset comprises $13 \\times 23$ scales plus $1 \\times 23$ musical excerpts. The recordings were made under the same conditions in a large rehearsal room at the Bilbao conservatory, keeping the distance between the player and the microphone (Zoom H4n Pro) constant and using a sample rate of 48kHz.\n",
+        "\n",
+        "## CNSM \n",
+        "Another dataset was created at the Paris Conservatoire (CNSMDP), involving thirteen semi-professional violinists and three violins. The participants were invited to freely explore each instrument before recording a chromatic scale and selected excerpts from the classical violin repertoire, including pieces by Bach (Partita No. 2, Allemande), Mozart (Concerto No. 3, 1st Mov.), Tchaikovsky (Concerto, 1st Mov.), Sibelius (Concerto), and Glazunov (Concerto). The recordings were made under the same conditions in a large recording studio at the CNSM, keeping the distance between the player and the microphone (a pair of DPA 4006) constant and using a sample rate of 48kHz.\n",
+        "\n",
+        "## Villefavard 2026 \n",
+        "A third dataset was created during the 2026 ALADFI (*Association des Luthiers et Archetiers pour le Développement de la Facture Instrumentale du quatuor*) workshop. The goal of this meeting was to replicate the Guarneri del Gesù *Maury-Ebersolt ex Menuhin* violin. Several violin makers brought their copies of this violin to the workshop, and musical recordings were made on seven of them by ten musicians. Unlike previous sessions, the playing proficiency varied among participants, leading to tailored recording protocols. Eight capable musicians (three professionals and five amateurs) recorded the standard CNSM repertoire, while the remaining two participants were permitted to play freely. The recordings were wmade under the same conditions in a large room at the Villefavard farm, keeping the distance between the player and the microphone constant and using a sample rate of 48kHz.\n"
+      ],
+      "id": "8cfd4552"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "def get_row_duration(row):\n",
+        "    if not pd.isnull(row[\"start\"]):\n",
+        "        row[\"duration\"] = row[\"end\"] - row[\"start\"]\n",
+        "    else:\n",
+        "        row[\"duration\"] = librosa.get_duration(path=row[\"file\"])\n",
+        "    return row\n",
+        "\n",
+        "\n",
+        "master_fig = plt.figure(figsize=(18, 6), layout=\"constrained\")\n",
+        "subfigs = master_fig.subfigures(1, 3, wspace=0.07)\n",
+        "\n",
+        "datasets = recordings.dataset.unique()\n",
+        "for dataset, subfig in zip(datasets, subfigs):\n",
+        "    subset = recordings.query(\"dataset == @dataset\").copy()\n",
+        "    subset = subset.apply(get_row_duration, axis=1)\n",
+        "    plot_dataset(subset, fig=subfig)\n",
+        "    subfig.suptitle(dataset)\n",
+        "\n",
+        "plt.show()"
+      ],
+      "id": "ae6cb5e9",
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/usr/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

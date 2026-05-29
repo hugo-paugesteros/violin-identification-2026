@@ -1,0 +1,98 @@
+---
+title: Is identification possible for machines ?
+---
+
+## Methods
+### Features
+- Long-Term Average Spectra (LTAS)
+- Long-Term Cepstral Coefficients (LTCC)
+- Long-Term Mel-Frequency Cepstral Coefficients (LTMFCC)
+
+### Classifiers
+- K-Nearest Neighbors (KNN)
+- Support Vector Machines (SVM)
+- Multi-Layer Perceptron (MLP)
+
+## Results
+
+```{python}
+%load_ext autoreload
+%autoreload 2
+
+import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
+import sklearn.neural_network
+from sklearn.svm import SVC
+import sklearn.tree
+from sklearn.model_selection import cross_validate, StratifiedShuffleSplit
+from sklearn.metrics import make_scorer, cohen_kappa_score
+
+from violin_identification.loader import load_recordings
+from violin_identification.features import get_features_and_labels
+from core import Recording, LTAS, LTCC, MFCC
+
+```
+
+```{python}
+#| echo: false
+#| message: false
+#| output: asis
+
+import pandas as pd
+import inspect
+from IPython.display import Markdown, display
+
+from violin_identification.experiments.train_baseline import run_baseline_evaluation
+
+source_code = inspect.getsource(run_baseline_evaluation)
+
+markdown_block = f"```python\n{source_code}\n```"
+display(Markdown(markdown_block))
+
+results_df = pd.read_csv("../data/interim/baseline_results.csv")
+```
+
+```{python}
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+metric = "accuracy"
+sns.set_theme(style="whitegrid", context="paper", font_scale=1.2)
+
+# Create the faceted boxplot
+g = sns.catplot(
+    data=results_df,
+    x="feature",
+    y=metric,
+    hue="classifier",
+    col="dataset",
+    kind="box",
+    height=5,
+    aspect=1.2,
+    palette="muted",
+    boxprops={"alpha": 0.8},
+    linewidth=1.5,
+)
+
+# Customize the axes and titles
+g.set_axis_labels("Acoustic Feature", metric.replace("_", " ").title())
+g.set_titles(col_template="Dataset: {col_name}", size=14, weight="bold")
+
+# Set Y-axis limits (metrics usually cap at 1.0)
+# We leave the bottom limit dynamic because Cohen's Kappa can theoretically go below 0
+for ax in g.axes.flat:
+    ax.set_ylim(bottom=ax.get_ylim()[0], top=1.05)
+    ax.axhline(1.0, color="black", linewidth=0.5, linestyle="--")  # Perfect score line
+
+# Adjust the legend
+sns.move_legend(
+    g,
+    "lower center",
+    bbox_to_anchor=(0.5, -0.1),
+    ncol=len(results_df["classifier"].unique()),
+    title=None,
+    frameon=True,
+)
+plt.tight_layout()
+plt.show()
+```

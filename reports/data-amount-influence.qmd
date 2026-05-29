@@ -1,0 +1,68 @@
+---
+title: Data Amount Influence
+---
+
+## Method
+```{python}
+#| echo: false
+#| message: false
+#| output: asis
+
+import pandas as pd
+import inspect
+from IPython.display import Markdown, display
+
+from violin_identification.experiments.data_scaling import (
+    run_data_scaling_evaluation,
+)
+
+source_code = inspect.getsource(run_data_scaling_evaluation)
+
+markdown_block = f"```python\n{source_code}\n```"
+display(Markdown(markdown_block))
+
+results_df = pd.read_csv("../data/interim/scaling_results.csv")
+```
+
+## Results
+```{python}
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+def plot_learning_heatmap(heatmap_df, metric="accuracy"):
+    datasets = heatmap_df["dataset"].unique()
+    fig, axes = plt.subplots(nrows=len(datasets), figsize=(7, 4 * len(datasets)))
+    if len(datasets) == 1:
+        axes = [axes]
+
+    for ax, dataset in zip(axes, datasets):
+        data = heatmap_df[heatmap_df["dataset"] == dataset]
+
+        pivot_table = data.pivot_table(
+            index="n_players",
+            columns="n_excerpts_per_player",
+            values=metric,
+            aggfunc="mean",
+        ).sort_index(ascending=False)
+
+        sns.heatmap(
+            pivot_table,
+            annot=True,
+            fmt=".2f",
+            vmin=0,
+            vmax=1.0,
+            ax=ax,
+        )
+
+        ax.set_title(f"Dataset: {dataset.title()}")
+        ax.set_xlabel("Excerpts per Player")
+        ax.set_ylabel("Unique Players")
+
+    plt.tight_layout()
+    plt.show()
+
+
+# --- Usage ---
+plot_learning_heatmap(results_df, metric="accuracy")
+```

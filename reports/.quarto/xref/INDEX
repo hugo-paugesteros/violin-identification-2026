@@ -1,0 +1,23 @@
+{
+  "index.qmd": {
+    "index.html": "9484ab46"
+  },
+  "materials.qmd": {
+    "materials.html": "bd98a955"
+  },
+  "is-identification-possible-humans.qmd": {
+    "is-identification-possible-humans.html": "1b69ff48"
+  },
+  "is-identification-possible-machine.qmd": {
+    "is-identification-possible-machine.html": "5ecefdce"
+  },
+  "excerpt-influence.qmd": {
+    "excerpt-influence.html": "0ae63fd2"
+  },
+  "factor-influence.qmd": {
+    "factor-influence.html": "92c021cd"
+  },
+  "data-amount-influence.qmd": {
+    "data-amount-influence.html": "a647b8d3"
+  }
+}

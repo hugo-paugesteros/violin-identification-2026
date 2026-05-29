@@ -1,0 +1,18 @@
+project:
+  type: book
+  output-dir: _output
+
+book:
+  title: "Chapter 1: The Acoustic Identification of Violins"
+  author: "Hugo Pauget Ballesteros"
+  chapters:
+    - index.qmd             # Your overall Introduction
+    - materials.qmd
+    - is-identification-possible-humans.qmd 
+    - is-identification-possible-machine.qmd 
+    - factor-influence.qmd
+    - data-amount-influence.qmd
+
+execute:
+  freeze: auto
+  execute-dir: project

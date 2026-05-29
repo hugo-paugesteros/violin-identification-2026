@@ -1,0 +1,110 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: Data Amount Influence\n",
+        "---\n",
+        "\n",
+        "## Method"
+      ],
+      "id": "7e500c52"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: false\n",
+        "#| output: asis\n",
+        "\n",
+        "import pandas as pd\n",
+        "import inspect\n",
+        "from IPython.display import Markdown, display\n",
+        "\n",
+        "from violin_identification.experiments.data_scaling import (\n",
+        "    run_data_scaling_evaluation,\n",
+        ")\n",
+        "\n",
+        "source_code = inspect.getsource(run_data_scaling_evaluation)\n",
+        "\n",
+        "markdown_block = f\"```python\\n{source_code}\\n```\"\n",
+        "display(Markdown(markdown_block))\n",
+        "\n",
+        "results_df = pd.read_csv(\"../data/interim/scaling_results.csv\")"
+      ],
+      "id": "f1e6324a",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Results"
+      ],
+      "id": "7b19a86c"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "import seaborn as sns\n",
+        "\n",
+        "\n",
+        "def plot_learning_heatmap(heatmap_df, metric=\"accuracy\"):\n",
+        "    datasets = heatmap_df[\"dataset\"].unique()\n",
+        "    fig, axes = plt.subplots(nrows=len(datasets), figsize=(7, 4 * len(datasets)))\n",
+        "    if len(datasets) == 1:\n",
+        "        axes = [axes]\n",
+        "\n",
+        "    for ax, dataset in zip(axes, datasets):\n",
+        "        data = heatmap_df[heatmap_df[\"dataset\"] == dataset]\n",
+        "\n",
+        "        pivot_table = data.pivot_table(\n",
+        "            index=\"n_players\",\n",
+        "            columns=\"n_excerpts_per_player\",\n",
+        "            values=metric,\n",
+        "            aggfunc=\"mean\",\n",
+        "        ).sort_index(ascending=False)\n",
+        "\n",
+        "        sns.heatmap(\n",
+        "            pivot_table,\n",
+        "            annot=True,\n",
+        "            fmt=\".2f\",\n",
+        "            vmin=0,\n",
+        "            vmax=1.0,\n",
+        "            ax=ax,\n",
+        "        )\n",
+        "\n",
+        "        ax.set_title(f\"Dataset: {dataset.title()}\")\n",
+        "        ax.set_xlabel(\"Excerpts per Player\")\n",
+        "        ax.set_ylabel(\"Unique Players\")\n",
+        "\n",
+        "    plt.tight_layout()\n",
+        "    plt.show()\n",
+        "\n",
+        "\n",
+        "# --- Usage ---\n",
+        "plot_learning_heatmap(results_df, metric=\"accuracy\")"
+      ],
+      "id": "07433157",
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/usr/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
