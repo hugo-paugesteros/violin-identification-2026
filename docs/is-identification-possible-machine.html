@@ -108,6 +108,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -148,7 +177,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -195,6 +224,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#features" id="toc-features" class="nav-link" data-scroll-target="#features"><span class="header-section-number">4.1.1</span> Features</a></li>
   <li><a href="#classifiers" id="toc-classifiers" class="nav-link" data-scroll-target="#classifiers"><span class="header-section-number">4.1.2</span> Classifiers</a></li>
+  <li><a href="#training" id="toc-training" class="nav-link" data-scroll-target="#training"><span class="header-section-number">4.1.3</span> Training</a></li>
   </ul></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results"><span class="header-section-number">4.2</span> Results</a></li>
   </ul>
@@ -224,26 +254,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="methods" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="methods"><span class="header-section-number">4.1</span> Methods</h2>
+<p>The goal is to check wether a machine learning pipeline can identify individual violins.</p>
 <section id="features" class="level3" data-number="4.1.1">
 <h3 data-number="4.1.1" class="anchored" data-anchor-id="features"><span class="header-section-number">4.1.1</span> Features</h3>
-<ul>
-<li>Long-Term Average Spectra (LTAS)</li>
-<li>Long-Term Cepstral Coefficients (LTCC)</li>
-<li>Long-Term Mel-Frequency Cepstral Coefficients (LTMFCC)</li>
-</ul>
+<p>We limit the study to long-term audio descriptors, as we can observe that when violinists try new instruments they often give a global description of the sound they produce. The following features have been compared for the classification task :</p>
+<section id="long-term-average-spectra-ltas" class="level4" data-number="4.1.1.1">
+<h4 data-number="4.1.1.1" class="anchored" data-anchor-id="long-term-average-spectra-ltas"><span class="header-section-number">4.1.1.1</span> Long-Term Average Spectra (LTAS)</h4>
+<p>The Long Time Average Spectra (LTAS) of a recording is obtained by dividing the input signal into overlapping segments, then calculating the windowed DFT of each segment and finally averaging the power of those DFTs.</p>
+<p>LTAS has been used in <span class="citation" data-cites="buen2005">@buen2005</span> in order to compare the tonal quality of violins. More specifically, the sound of old Italians violins (Stradivari/Guarneri) and modern violins has been compared. The author concludes that differences between these two groups can be shown using LTAS</p>
+</section>
+<section id="long-term-cepstral-coefficients-ltcc" class="level4" data-number="4.1.1.2">
+<h4 data-number="4.1.1.2" class="anchored" data-anchor-id="long-term-cepstral-coefficients-ltcc"><span class="header-section-number">4.1.1.2</span> Long-Term Cepstral Coefficients (LTCC)</h4>
+<p>LTCC have been introduced in <span class="citation" data-cites="lukasik2010">@lukasik2010</span> for Indivudial Instrument Identification. Their calculation is similar to that of MFCCs, except that a Mel-filterbank is not applied and that the final step is given by an Inverse Discrete Fourier Transform.</p>
+</section>
+<section id="long-term-mel-frequency-cepstral-coefficients-ltmfcc" class="level4" data-number="4.1.1.3">
+<h4 data-number="4.1.1.3" class="anchored" data-anchor-id="long-term-mel-frequency-cepstral-coefficients-ltmfcc"><span class="header-section-number">4.1.1.3</span> Long-Term Mel-Frequency Cepstral Coefficients (LTMFCC)</h4>
+<p>MFCCs are obtained by mapping the frequencies of a spectrum onto a nonlinear mel-scale (a perceptual scale of pitches judged by listeners to be equal in distance from one another), taking the log, and then compute the DCT of the result. Here, instead of calculating the MFCCs on overlapping segments, we use a LTAS as our spectra as we want features with a long-term meaning</p>
+<p>MFCC are a set of features that has been extensively used for Automatic Speaker Recognition and for Instruments Classification (<span class="citation" data-cites="eronen2000">@eronen2000</span>, <span class="citation" data-cites="deng2008">@deng2008</span>).</p>
+</section>
 </section>
 <section id="classifiers" class="level3" data-number="4.1.2">
 <h3 data-number="4.1.2" class="anchored" data-anchor-id="classifiers"><span class="header-section-number">4.1.2</span> Classifiers</h3>
-<ul>
-<li>K-Nearest Neighbors (KNN)</li>
-<li>Support Vector Machines (SVM)</li>
-<li>Multi-Layer Perceptron (MLP)</li>
-</ul>
+<p>We compare the results of three popular classification algorithms : K-Nearest Neighbours, Support Vector Machines and Multilayer Perceptron. These three classifiers use different learning strategies and thus will give different results on our data.</p>
+<section id="k-nearest-neighbors-knn" class="level4" data-number="4.1.2.1">
+<h4 data-number="4.1.2.1" class="anchored" data-anchor-id="k-nearest-neighbors-knn"><span class="header-section-number">4.1.2.1</span> K-Nearest Neighbors (KNN)</h4>
+<p>K-Nearest Neighbours is a method that predicts the label of a new point based on the most frequent label among its K closest neighbors in the feature space. Since the prediction is made directly from the training data, this method is non-parametric (or non-generalizing), which is an advantage when the decision boundary is irregular.</p>
+</section>
+<section id="support-vector-machines-svm" class="level4" data-number="4.1.2.2">
+<h4 data-number="4.1.2.2" class="anchored" data-anchor-id="support-vector-machines-svm"><span class="header-section-number">4.1.2.2</span> Support Vector Machines (SVM)</h4>
+<p>Support Vector Machines is a supervised learning method using for classification. It works by finding an optimal hyperplane that maximizes the distance between each class in the training data. This algorithm is computationally expensive but generally has good generalisation properties.</p>
+</section>
+<section id="multilayer-perceptron-mlp" class="level4" data-number="4.1.2.3">
+<h4 data-number="4.1.2.3" class="anchored" data-anchor-id="multilayer-perceptron-mlp"><span class="header-section-number">4.1.2.3</span> Multilayer Perceptron (MLP)</h4>
+<p>A Multilayer Perceptron is a type of neural network that maps inputs to outputs through multiple layers of interconnected neurons, using learned weights and biases to perform complex transformations. This method has demonstrated effectiveness in various domains, as the non-linear activation functions can model complex relationships in data while hidden layers can learn hierarchical representations from input data. However, MLPs are prone to over-fitting, especially on small datasets.</p>
+</section>
+</section>
+<section id="training" class="level3" data-number="4.1.3">
+<h3 data-number="4.1.3" class="anchored" data-anchor-id="training"><span class="header-section-number">4.1.3</span> Training</h3>
+<p>For each dataset and each feature, <span class="math inline">\(n=10\)</span> StratifiedShuffleSplit are drawn from the entire dataset. Each classifier is then trained on the train data and tested on the test data. This can be seen as a Monte-Carlo Cross-Validation. The goal is to quantify the variability in model performance due to the choice of training data.</p>
 </section>
 </section>
 <section id="results" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="results"><span class="header-section-number">4.2</span> Results</h2>
-<div id="0299cb4c" class="cell" data-execution_count="1">
+<div id="a3144e67" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -258,12 +311,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> violin_identification.loader <span class="im">import</span> load_recordings</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> violin_identification.features <span class="im">import</span> get_features_and_labels</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> core <span class="im">import</span> Recording, LTAS, LTCC, MFCC</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>The autoreload extension is already loaded. To reload it, use:
-  %reload_ext autoreload</code></pre>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/hugo/Thèse/violin-identification/venv/lib/python3.14/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm</code></pre>
 </div>
 </div>
-<div id="09e55bc6" class="cell" data-message="false" data-execution_count="2">
+<div id="e220b4c7" class="cell" data-message="false" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_baseline_evaluation(recordings, output_path):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Runs the 10-iteration CV baseline evaluation for all datasets."""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    features <span class="op">=</span> [LTAS(), LTCC(), MFCC()]</span>
@@ -308,7 +361,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    results_df.to_csv(output_path, index<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Baseline results successfully saved to </span><span class="sc">{</span>output_path<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="1806ba30" class="cell" data-execution_count="3">
+<div id="f74b5fe5" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>

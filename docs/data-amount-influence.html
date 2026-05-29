@@ -107,6 +107,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -147,7 +176,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -219,7 +248,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="method" class="level2" data-number="6.1">
 <h2 data-number="6.1" class="anchored" data-anchor-id="method"><span class="header-section-number">6.1</span> Method</h2>
-<div id="cee2c88f" class="cell" data-message="false" data-execution_count="1">
+<p>To understand the impact of both the number of violinists and the number of excerpts per violinist in the training data, we designed an experiment varying both parameters. First, <span class="math inline">\(20\%\)</span> of the data was held out for testing. Next, for systematically varied numbers of violinists (<span class="math inline">\(n\)</span>) and excerpts per violinist (<span class="math inline">\(m\)</span>), we trained our LTMFCC-SVM model using randomly selected subsets. The performance of the model was then measured on the fixed test set. The resulting accuracy values, for different (<span class="math inline">\(n\)</span>, <span class="math inline">\(m\)</span>) pairs, are presented below:</p>
+<div id="1624706d" class="cell" data-message="false" data-execution_count="1">
 <pre><code>/home/hugo/Thèse/violin-identification/venv/lib/python3.14/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
   from .autonotebook import tqdm as notebook_tqdm</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_data_scaling_evaluation(recordings, output_path):</span>
@@ -296,35 +326,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>                    model <span class="op">=</span> clone(classifier)</span>
 <span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>                    model.fit(X_train, y_train)</span>
 <span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># D. Test on Known Violins Only</span></span>
-<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>                    mask_known <span class="op">=</span> np.isin(y_test, unique_train_violins)</span>
-<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> <span class="bu">sum</span>(mask_known) <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">continue</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># # D. Test on Known Violins Only</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># mask_known = np.isin(y_test, unique_train_violins)</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># if sum(mask_known) == 0:</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#     continue</span></span>
 <span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>                    y_test_known <span class="op">=</span> y_test[mask_known]</span>
-<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>                    y_pred_known <span class="op">=</span> model.predict(X_test[mask_known])</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># y_test_known = y_test[mask_known]</span></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># y_pred_known = model.predict(X_test[mask_known])</span></span>
 <span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># E. Log Metrics</span></span>
-<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>                    res <span class="op">=</span> {</span>
-<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"dataset"</span>: dataset,</span>
-<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"n_players"</span>: n_players,</span>
-<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"n_excerpts_per_player"</span>: n_excerpts,</span>
-<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"iteration"</span>: iteration,</span>
-<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>                    }</span>
-<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> name, (func, kwargs) <span class="kw">in</span> base_metrics.items():</span>
-<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>                        res[name] <span class="op">=</span> func(y_test_known, y_pred_known, <span class="op">**</span>kwargs)</span>
-<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>                    results.append(res)</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>                    y_pred <span class="op">=</span> model.predict(X_test)</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># E. Log Metrics</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>                    res <span class="op">=</span> {</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"dataset"</span>: dataset,</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"n_players"</span>: n_players,</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"n_excerpts_per_player"</span>: n_excerpts,</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"iteration"</span>: iteration,</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>                    }</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> name, (func, kwargs) <span class="kw">in</span> base_metrics.items():</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>                        res[name] <span class="op">=</span> func(y_test, y_pred, <span class="op">**</span>kwargs)</span>
 <span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 4. Save</span></span>
-<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    results_df <span class="op">=</span> pd.DataFrame(results)</span>
-<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>    results_df.to_csv(output_path, index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Data scaling results successfully saved to </span><span class="sc">{</span>output_path<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>                    results.append(res)</span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 4. Save</span></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>    results_df <span class="op">=</span> pd.DataFrame(results)</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    results_df.to_csv(output_path, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Data scaling results successfully saved to </span><span class="sc">{</span>output_path<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="results" class="level2" data-number="6.2">
 <h2 data-number="6.2" class="anchored" data-anchor-id="results"><span class="header-section-number">6.2</span> Results</h2>
-<div id="c6f1ea13" class="cell" data-execution_count="2">
+<div id="b15d6c36" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>

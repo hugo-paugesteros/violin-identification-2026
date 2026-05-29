@@ -148,7 +148,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -222,170 +222,99 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="8aa5be26" class="cell" data-execution_count="1">
+<div id="c70506bc" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
-<pre><code>The autoreload extension is already loaded. To reload it, use:
-  %reload_ext autoreload
-Original recordings: 2124
+<pre><code>Original recordings: 2124
 Cleaned recordings:  2124 (Dropped 0)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/hugo/Thèse/violin-identification/venv/lib/python3.14/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm</code></pre>
 </div>
 </div>
 <section id="methods" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="methods"><span class="header-section-number">5.1</span> Methods</h2>
-<p>Train a baseline classifier on different excerpts/players. Test it on same excerpt/player (but different takes) and different excerpts/players (generalization score).</p>
-<div id="140c3c43" class="cell" data-message="false" data-execution_count="2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_one_factor_evaluation(recordings, factor, output_path):</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    datasets <span class="op">=</span> [<span class="st">"cnsm"</span>, <span class="st">"villefavard2026"</span>]</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    feature <span class="op">=</span> MFCC()</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    classifier <span class="op">=</span> SVC(kernel<span class="op">=</span><span class="st">"linear"</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    cv <span class="op">=</span> StratifiedShuffleSplit(n_splits<span class="op">=</span><span class="dv">10</span>, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    base_metrics <span class="op">=</span> {</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"accuracy"</span>: (accuracy_score, {}),</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"precision"</span>: (precision_score, {<span class="st">"average"</span>: <span class="st">"macro"</span>, <span class="st">"zero_division"</span>: <span class="dv">0</span>}),</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"recall"</span>: (recall_score, {<span class="st">"average"</span>: <span class="st">"macro"</span>, <span class="st">"zero_division"</span>: <span class="dv">0</span>}),</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"f1"</span>: (f1_score, {<span class="st">"average"</span>: <span class="st">"macro"</span>, <span class="st">"zero_division"</span>: <span class="dv">0</span>}),</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"kappa"</span>: (cohen_kappa_score, {}),</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. Auto-generate the sklearn-compatible scorers for cross_validate (Test A)</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    scoring <span class="op">=</span> {</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        name: make_scorer(func, <span class="op">**</span>kwargs)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> name, (func, kwargs) <span class="kw">in</span> base_metrics.items()</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> []</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> dataset <span class="kw">in</span> datasets:</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        subset <span class="op">=</span> recordings.query(<span class="st">"dataset == @dataset"</span>)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        groups <span class="op">=</span> subset[factor].unique()</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        X_all, y_all <span class="op">=</span> get_features_and_labels(feature, subset)</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        groups_all <span class="op">=</span> subset[factor].values</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> group <span class="kw">in</span> groups:</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(group)</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>            mask_same <span class="op">=</span> groups_all <span class="op">==</span> group</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>            mask_diff <span class="op">=</span> groups_all <span class="op">!=</span> group</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>            X_same, y_same <span class="op">=</span> X_all[mask_same], y_all[mask_same]</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>            X_diff, y_diff <span class="op">=</span> X_all[mask_diff], y_all[mask_diff]</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>                X_same_train, X_same_test, y_same_train, y_same_test <span class="op">=</span> train_test_split(</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>                    X_same, y_same, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span> <span class="op">+</span> i, stratify<span class="op">=</span>y_same</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>                )</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Train</span></span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>                model <span class="op">=</span> clone(classifier)</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>                model.fit(X_same_train, y_same_train)</span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Test A : same</span></span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>                y_pred_same <span class="op">=</span> model.predict(X_same_test)</span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>                res_same <span class="op">=</span> {</span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"dataset"</span>: dataset,</span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"</span><span class="sc">{</span>factor<span class="sc">}</span><span class="ss">_trained_on"</span>: group,</span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"test_type"</span>: <span class="ss">f"Same </span><span class="sc">{</span>factor<span class="sc">.</span>capitalize()<span class="sc">}</span><span class="ss">"</span>,</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"iteration"</span>: i,</span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>                }</span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> metric_name, (func, kwargs) <span class="kw">in</span> base_metrics.items():</span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>                    res_same[metric_name] <span class="op">=</span> func(y_same_test, y_pred_same, <span class="op">**</span>kwargs)</span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>                results.append(res_same)</span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Test B : different</span></span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>                y_pred_diff <span class="op">=</span> model.predict(X_diff)</span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>                res_diff <span class="op">=</span> {</span>
-<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"dataset"</span>: dataset,</span>
-<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"</span><span class="sc">{</span>factor<span class="sc">}</span><span class="ss">_trained_on"</span>: group,</span>
-<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"test_type"</span>: <span class="ss">f"Different </span><span class="sc">{</span>factor<span class="sc">.</span>capitalize()<span class="sc">}</span><span class="ss">"</span>,</span>
-<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"iteration"</span>: i,</span>
-<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>                }</span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> metric_name, (func, kwargs) <span class="kw">in</span> base_metrics.items():</span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>                    res_diff[metric_name] <span class="op">=</span> func(y_diff, y_pred_diff, <span class="op">**</span>kwargs)</span>
-<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>                results.append(res_diff)</span>
-<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    results_df <span class="op">=</span> pd.DataFrame(results)</span>
-<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    results_df.to_csv(output_path, index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Baseline results successfully saved to </span><span class="sc">{</span>output_path<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The goal is to quantify the influence of factors (such as the excerpts or the players) on classification results. This could allow to answer: Is there a better excerpt to learn from if we want to distinguish violins ? Is there a better player ?</p>
+<p>To do that, we train a “baseline” classifier (LTMFCC + SVM, which showed good classification results) on different excerpts. Then, we test it on different takes of the same excerpt (with this excerpt as training data, is it easy to identify the violin given it plays the same excerpt ?) and different excerpts (with this excerpt as training data, is it easy to identify the violin given it plays an unknown excerpt). We also do that for players.</p>
+<div id="da1e8cbd" class="cell" data-message="false" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_one_factor_evaluation(recordings, factor, output_path):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    datasets <span class="op">=</span> [<span class="st">"cnsm"</span>, <span class="st">"villefavard2026"</span>]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    feature <span class="op">=</span> MFCC()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    classifier <span class="op">=</span> SVC(kernel<span class="op">=</span><span class="st">"linear"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    cv <span class="op">=</span> StratifiedShuffleSplit(n_splits<span class="op">=</span><span class="dv">10</span>, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    base_metrics <span class="op">=</span> {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"accuracy"</span>: (accuracy_score, {}),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"precision"</span>: (precision_score, {<span class="st">"average"</span>: <span class="st">"macro"</span>, <span class="st">"zero_division"</span>: <span class="dv">0</span>}),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"recall"</span>: (recall_score, {<span class="st">"average"</span>: <span class="st">"macro"</span>, <span class="st">"zero_division"</span>: <span class="dv">0</span>}),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"f1"</span>: (f1_score, {<span class="st">"average"</span>: <span class="st">"macro"</span>, <span class="st">"zero_division"</span>: <span class="dv">0</span>}),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"kappa"</span>: (cohen_kappa_score, {}),</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. Auto-generate the sklearn-compatible scorers for cross_validate (Test A)</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    scoring <span class="op">=</span> {</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        name: make_scorer(func, <span class="op">**</span>kwargs)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> name, (func, kwargs) <span class="kw">in</span> base_metrics.items()</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> []</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> dataset <span class="kw">in</span> datasets:</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        subset <span class="op">=</span> recordings.query(<span class="st">"dataset == @dataset"</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        groups <span class="op">=</span> subset[factor].unique()</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        X_all, y_all <span class="op">=</span> get_features_and_labels(feature, subset)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        groups_all <span class="op">=</span> subset[factor].values</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> group <span class="kw">in</span> groups:</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(group)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>            mask_same <span class="op">=</span> groups_all <span class="op">==</span> group</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>            mask_diff <span class="op">=</span> groups_all <span class="op">!=</span> group</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>            X_same, y_same <span class="op">=</span> X_all[mask_same], y_all[mask_same]</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>            X_diff, y_diff <span class="op">=</span> X_all[mask_diff], y_all[mask_diff]</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>                X_same_train, X_same_test, y_same_train, y_same_test <span class="op">=</span> train_test_split(</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>                    X_same, y_same, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span> <span class="op">+</span> i, stratify<span class="op">=</span>y_same</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Train</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>                model <span class="op">=</span> clone(classifier)</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>                model.fit(X_same_train, y_same_train)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Test A : same</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>                y_pred_same <span class="op">=</span> model.predict(X_same_test)</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>                res_same <span class="op">=</span> {</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"dataset"</span>: dataset,</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"</span><span class="sc">{</span>factor<span class="sc">}</span><span class="ss">_trained_on"</span>: group,</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"test_type"</span>: <span class="ss">f"Same </span><span class="sc">{</span>factor<span class="sc">.</span>capitalize()<span class="sc">}</span><span class="ss">"</span>,</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"iteration"</span>: i,</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>                }</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> metric_name, (func, kwargs) <span class="kw">in</span> base_metrics.items():</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>                    res_same[metric_name] <span class="op">=</span> func(y_same_test, y_pred_same, <span class="op">**</span>kwargs)</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>                results.append(res_same)</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Test B : different</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>                y_pred_diff <span class="op">=</span> model.predict(X_diff)</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>                res_diff <span class="op">=</span> {</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"dataset"</span>: dataset,</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"</span><span class="sc">{</span>factor<span class="sc">}</span><span class="ss">_trained_on"</span>: group,</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"test_type"</span>: <span class="ss">f"Different </span><span class="sc">{</span>factor<span class="sc">.</span>capitalize()<span class="sc">}</span><span class="ss">"</span>,</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"iteration"</span>: i,</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>                }</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> metric_name, (func, kwargs) <span class="kw">in</span> base_metrics.items():</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>                    res_diff[metric_name] <span class="op">=</span> func(y_diff, y_pred_diff, <span class="op">**</span>kwargs)</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>                results.append(res_diff)</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    results_df <span class="op">=</span> pd.DataFrame(results)</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    results_df.to_csv(output_path, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Baseline results successfully saved to </span><span class="sc">{</span>output_path<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="results" class="level2" data-number="5.2">
 <h2 data-number="5.2" class="anchored" data-anchor-id="results"><span class="header-section-number">5.2</span> Results</h2>
-<div id="a120fce1" class="cell" data-execution_count="3">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_excerpt_breakdown(results_df, metric<span class="op">=</span><span class="st">"kappa"</span>, save_path<span class="op">=</span><span class="va">None</span>):</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Plots the generalization gap excerpt-by-excerpt for a single classifier,</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">    sorted from best to worst generalization performance.</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    df_plot <span class="op">=</span> results_df.copy()</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sort</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    gen_data <span class="op">=</span> df_plot[df_plot[<span class="st">"test_type"</span>] <span class="op">==</span> <span class="st">"Different Excerpt"</span>]</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    excerpt_scores <span class="op">=</span> gen_data.groupby(<span class="st">"excerpt_trained_on"</span>)[metric].mean()</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    df_plot[<span class="st">"gen_score"</span>] <span class="op">=</span> df_plot[<span class="st">"excerpt_trained_on"</span>].<span class="bu">map</span>(excerpt_scores)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    df_plot.sort_values(</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        by<span class="op">=</span>[<span class="st">"dataset"</span>, <span class="st">"gen_score"</span>], ascending<span class="op">=</span>[<span class="va">True</span>, <span class="va">True</span>], inplace<span class="op">=</span><span class="va">True</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>, context<span class="op">=</span><span class="st">"paper"</span>, font_scale<span class="op">=</span><span class="fl">1.1</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> sns.catplot(</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        data<span class="op">=</span>df_plot,</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="st">"excerpt_trained_on"</span>,</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span>metric,</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        hue<span class="op">=</span><span class="st">"test_type"</span>,</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="co"># col="feature",</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        row<span class="op">=</span><span class="st">"dataset"</span>,</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        kind<span class="op">=</span><span class="st">"box"</span>,</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        sharex<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        height<span class="op">=</span><span class="fl">4.5</span>,</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        aspect<span class="op">=</span><span class="fl">1.4</span>,</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        palette<span class="op">=</span>[<span class="st">"#4C72B0"</span>, <span class="st">"#C44E52"</span>],</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        boxprops<span class="op">=</span>{<span class="st">"alpha"</span>: <span class="fl">0.85</span>},</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        linewidth<span class="op">=</span><span class="fl">1.2</span>,</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    g.set_axis_labels(</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Training Excerpt (Sorted by Best Generalization)"</span>,</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>        metric.replace(<span class="st">"_"</span>, <span class="st">" "</span>).title(),</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    g.set_titles(</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        row_template<span class="op">=</span><span class="st">"Dataset: </span><span class="sc">{row_name}</span><span class="st">"</span>,</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        col_template<span class="op">=</span><span class="st">"Feature: </span><span class="sc">{col_name}</span><span class="st">"</span>,</span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        size<span class="op">=</span><span class="dv">12</span>,</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        weight<span class="op">=</span><span class="st">"bold"</span>,</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ax <span class="kw">in</span> g.axes.flat:</span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> label <span class="kw">in</span> ax.get_xticklabels():</span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>            label.set_rotation(<span class="dv">45</span>)</span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>            label.set_ha(<span class="st">"right"</span>)</span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>        ax.set_ylim(bottom<span class="op">=</span><span class="bu">min</span>(<span class="op">-</span><span class="fl">0.1</span>, ax.get_ylim()[<span class="dv">0</span>]), top<span class="op">=</span><span class="fl">1.05</span>)</span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>        ax.axhline(<span class="fl">1.0</span>, color<span class="op">=</span><span class="st">"black"</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    sns.move_legend(</span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>        g,</span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>        <span class="st">"lower center"</span>,</span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>        bbox_to_anchor<span class="op">=</span>(<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.08</span>),</span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>        ncol<span class="op">=</span><span class="dv">2</span>,</span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">"Evaluation Context"</span>,</span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>        frameon<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    g.figure.suptitle(</span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Excerpt-by-Excerpt Generalization Gap"</span>, y<span class="op">=</span><span class="fl">1.02</span>, fontsize<span class="op">=</span><span class="dv">16</span>, weight<span class="op">=</span><span class="st">"bold"</span></span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> save_path:</span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>        plt.savefig(save_path, dpi<span class="op">=</span><span class="dv">300</span>, bbox_inches<span class="op">=</span><span class="st">"tight"</span>)</span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Plot saved to </span><span class="sc">{</span>save_path<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div id="241f77eb" class="cell" data-execution_count="4">
+<div id="3de94848" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_generalization_gap(results_df, split_column, metric<span class="op">=</span><span class="st">"accuracy"</span>):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    df_plot <span class="op">=</span> results_df.copy()</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -422,13 +351,13 @@ Cleaned recordings:  2124 (Dropped 0)</code></pre>
 </div>
 <section id="excerpts" class="level3" data-number="5.2.1">
 <h3 data-number="5.2.1" class="anchored" data-anchor-id="excerpts"><span class="header-section-number">5.2.1</span> Excerpts</h3>
-<div id="9c20baac" class="cell" data-execution_count="5">
+<div id="044e3231" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>results_excerpts <span class="op">=</span> pd.read_csv(<span class="st">"../data/interim/excerpts_results.csv"</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>plot_generalization_gap(results_excerpts, split_column<span class="op">=</span><span class="st">"excerpt"</span>, metric<span class="op">=</span><span class="st">"accuracy"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="factor-influence_files/figure-html/cell-6-output-1.png" width="719" height="810" class="figure-img"></p>
+<p><img src="factor-influence_files/figure-html/cell-5-output-1.png" width="719" height="810" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -436,13 +365,13 @@ Cleaned recordings:  2124 (Dropped 0)</code></pre>
 </section>
 <section id="players" class="level3" data-number="5.2.2">
 <h3 data-number="5.2.2" class="anchored" data-anchor-id="players"><span class="header-section-number">5.2.2</span> Players</h3>
-<div id="514c79fa" class="cell" data-execution_count="6">
+<div id="cdd23620" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>results_players <span class="op">=</span> pd.read_csv(<span class="st">"../data/interim/players_results.csv"</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>plot_generalization_gap(results_players, split_column<span class="op">=</span><span class="st">"player"</span>, metric<span class="op">=</span><span class="st">"accuracy"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="factor-influence_files/figure-html/cell-7-output-1.png" width="711" height="801" class="figure-img"></p>
+<p><img src="factor-influence_files/figure-html/cell-6-output-1.png" width="711" height="801" class="figure-img"></p>
 </figure>
 </div>
 </div>
