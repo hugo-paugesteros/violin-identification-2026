@@ -44,6 +44,7 @@ The goal is to quantify the influence of factors (such as the excerpts or the pl
 
 To do that, we train a "baseline" classifier (LTMFCC + SVM, which showed good classification results) on different excerpts. Then, we test it on different takes of the same excerpt (with this excerpt as training data, is it easy to identify the violin given it plays the same excerpt ?) and different excerpts (with this excerpt as training data, is it easy to identify the violin given it plays an unknown excerpt). We also do that for players.
 
+
 ```{python}
 #| echo: false
 #| message: false

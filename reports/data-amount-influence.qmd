@@ -3,6 +3,8 @@ title: Data Amount Influence
 ---
 
 ## Method
+To understand the impact of both the number of violinists and the number of excerpts per violinist in the training data, we designed an experiment varying both parameters.  First, $20\%$ of the data was held out for testing.  Next, for systematically varied numbers of violinists ($n$) and excerpts per violinist ($m$), we trained our LTMFCC-SVM model using randomly selected subsets. The performance of the model was then measured on the fixed test set. The resulting accuracy values, for different ($n$, $m$) pairs, are presented below:
+
 ```{python}
 #| echo: false
 #| message: false
